@@ -1,7 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { getAnalytics, isSupported } from 'firebase/analytics';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyA80s6Mqqe4bqvgk3p5LvNLzbTc36ibbUg",
@@ -16,21 +15,4 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
-
-// Gracefully and safely initialize analytics without crashing in restricted/sandboxed iframes
-export let analytics: any = null;
-if (typeof window !== 'undefined') {
-  isSupported()
-    .then((supported) => {
-      if (supported) {
-        try {
-          analytics = getAnalytics(app);
-        } catch (err) {
-          // Ignore if sandboxed environment disallows fetch patching or indexedDB
-        }
-      }
-    })
-    .catch(() => {
-      // Ignore unsupported environments
-    });
-}
+export const analytics = null;
