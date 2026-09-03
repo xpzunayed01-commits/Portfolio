@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  
+  --color-graphite-900: #111111;
+  --color-graphite-800: #222222;
+  --color-graphite-700: #333333;
+  --color-graphite-600: #444444;
+  --color-paper: #FAFAFA;
+  --color-paper-light: #FFFFFF;
+  --color-paper-dark: #F2F2F2;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

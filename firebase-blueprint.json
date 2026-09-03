@@ -1,0 +1,165 @@
+{
+  "project_id": "gen-lang-client-0355674633",
+  "collections": [
+    {
+      "name": "contactMessages",
+      "fields": {
+        "name": "string",
+        "email": "string",
+        "projectType": "string",
+        "budget": "string",
+        "message": "string",
+        "status": "string",
+        "createdAt": "timestamp"
+      },
+      "rules": {
+        "read": "request.auth != null",
+        "create": "true",
+        "update": "request.auth != null",
+        "delete": "request.auth != null"
+      }
+    },
+    {
+      "name": "projects",
+      "fields": {
+        "title": "string",
+        "slug": "string",
+        "shortDescription": "string",
+        "fullDescription": "string",
+        "category": "string",
+        "categories": "array",
+        "year": "string",
+        "role": "string",
+        "coverImage": "string",
+        "gallery": "array",
+        "tools": "array",
+        "clientType": "string",
+        "liveUrl": "string",
+        "featured": "boolean",
+        "published": "boolean",
+        "challenge": "string",
+        "goal": "string",
+        "process": "string",
+        "solution": "string",
+        "learnings": "string",
+        "caseStudyContent": "string",
+        "order": "number",
+        "createdAt": "timestamp"
+      },
+      "rules": {
+        "read": "true",
+        "create": "request.auth != null",
+        "update": "request.auth != null",
+        "delete": "request.auth != null"
+      }
+    },
+    {
+      "name": "services",
+      "fields": {
+        "title": "string",
+        "slug": "string",
+        "number": "string",
+        "icon": "string",
+        "shortDescription": "string",
+        "fullDescription": "string",
+        "deliverables": "array",
+        "process": "array",
+        "tools": "array",
+        "faq": "array",
+        "published": "boolean",
+        "order": "number"
+      },
+      "rules": {
+        "read": "true",
+        "create": "request.auth != null",
+        "update": "request.auth != null",
+        "delete": "request.auth != null"
+      }
+    },
+    {
+      "name": "certificates",
+      "fields": {
+        "title": "string",
+        "issuer": "string",
+        "issueDate": "string",
+        "expirationDate": "string",
+        "image": "string",
+        "verificationUrl": "string",
+        "description": "string",
+        "published": "boolean",
+        "order": "number"
+      },
+      "rules": {
+        "read": "true",
+        "create": "request.auth != null",
+        "update": "request.auth != null",
+        "delete": "request.auth != null"
+      }
+    },
+    {
+      "name": "tools",
+      "fields": {
+        "name": "string",
+        "icon": "string",
+        "category": "string",
+        "description": "string",
+        "visible": "boolean",
+        "order": "number"
+      },
+      "rules": {
+        "read": "true",
+        "create": "request.auth != null",
+        "update": "request.auth != null",
+        "delete": "request.auth != null"
+      }
+    },
+    {
+      "name": "settings",
+      "fields": {
+        "siteTitle": "string",
+        "metaDescription": "string",
+        "logoText": "string",
+        "logoMark": "string",
+        "faviconUrl": "string",
+        "primaryEmail": "string",
+        "socialLinks": "map",
+        "footerText": "string",
+        "availabilityText": "string",
+        "cvUrl": "string"
+      },
+      "rules": {
+        "read": "true",
+        "create": "request.auth != null",
+        "update": "request.auth != null",
+        "delete": "request.auth != null"
+      }
+    },
+    {
+      "name": "profile",
+      "fields": {
+        "name": "string",
+        "professionalName": "string",
+        "headline": "string",
+        "heroText": "string",
+        "aboutText": "string",
+        "profileImage": "string",
+        "availability": "string",
+        "email": "string",
+        "phone": "string",
+        "github": "string",
+        "linkedin": "string",
+        "instagram": "string",
+        "facebook": "string",
+        "behance": "string",
+        "dribbble": "string",
+        "cvUrl": "string"
+      },
+      "rules": {
+        "read": "true",
+        "create": "request.auth != null",
+        "update": "request.auth != null",
+        "delete": "request.auth != null"
+      }
+    }
+  ]
+}

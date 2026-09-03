@@ -1,11 +1,40 @@
-<div align="center">
+# Zunayed's Portfolio
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+A premium, minimalistic, light-theme personal portfolio website for Zunayed Al Hasan, Web Designer, UI/UX Designer, and Creative Developer.
 
-  <h1>Built with AI Studio</h2>
+## Overview
+This project is built using modern web technologies to ensure it is fast, responsive, accessible, and visually striking. The architecture supports a private, secure administrative dashboard powered by Firebase.
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## Tech Stack
+- **Framework:** React + Vite (SPA)
+- **Routing:** React Router DOM
+- **Styling:** Tailwind CSS (v4)
+- **Animations:** Motion (Framer Motion)
+- **Icons:** Lucide React
+- **Backend / BaaS:** Firebase (Auth, Firestore)
+- **Deployment:** Cloud Run / Vercel
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+## Local Setup
 
-</div>
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Configure Firebase:
+   The application uses Firebase. Configuration is managed via `firebase-applet-config.json`.
+
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+## Firebase Setup
+
+To fully enable the Admin Dashboard and dynamic contact messages:
+
+1. **Authentication:** Enable Email/Password authentication in your Firebase project.
+2. **Firestore Database:** The schema is defined in `firebase-blueprint.json`.
+3. **Security Rules:** Deploy the rules in `firestore.rules` to protect your data.
+
+*Designed and developed by Zunayed Al Hasan.*
