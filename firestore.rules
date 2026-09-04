@@ -3,57 +3,85 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Contact Messages: Anyone can submit a message, but ONLY authenticated admins can read, update, or delete.
+    // Global helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'xpzunayed01@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        exists(/databases/$(database)/documents/adminUsers/$(request.auth.uid))
+      );
+    }
+
+    // Contact Messages: Public CREATE only with strict schema validation; ONLY authenticated admins can read, list, update, or delete.
     match /contactMessages/{document} {
-      allow read: if request.auth != null;
-      allow create: if request.resource.data.name is string && request.resource.data.email is string;
-      allow update: if request.auth != null;
-      allow delete: if request.auth != null;
+      allow create: if request.resource.data.name is string 
+                    && request.resource.data.name.size() > 0 
+                    && request.resource.data.name.size() <= 100
+                    && request.resource.data.email is string 
+                    && request.resource.data.email.size() > 0 
+                    && request.resource.data.email.size() <= 120
+                    && request.resource.data.message is string 
+                    && request.resource.data.message.size() > 0 
+                    && request.resource.data.message.size() <= 5000
+                    && request.resource.data.status == 'unread';
+      allow read, update, delete: if isAdmin();
     }
 
     // Projects: Public read, authenticated admin write/edit/delete
     match /projects/{document} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null;
+      allow create, update, delete: if isAdmin();
     }
 
     // Services: Public read, authenticated admin write/edit/delete
     match /services/{document} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null;
+      allow create, update, delete: if isAdmin();
     }
 
     // Certificates: Public read, authenticated admin write/edit/delete
     match /certificates/{document} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null;
+      allow create, update, delete: if isAdmin();
     }
 
     // Tools & Technologies: Public read, authenticated admin write
     match /tools/{document} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null;
+      allow create, update, delete: if isAdmin();
     }
 
     // Site Content (Settings, Profile): Public read, authenticated admin write
     match /siteContent/{document} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null;
+      allow create, update, delete: if isAdmin();
     }
 
-    // Fallback collections for settings & profile
+    // Settings & Profile collections
     match /settings/{document} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null;
+      allow create, update, delete: if isAdmin();
     }
     match /profile/{document} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null;
+      allow create, update, delete: if isAdmin();
     }
 
-    // Admin Users Collection
+    // Admin Users Collection: only accessible by verified admins
+    match /admins/{document} {
+      allow read, write: if isAdmin();
+    }
     match /adminUsers/{document} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isAdmin();
+    }
+
+    // Catch-all default deny
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

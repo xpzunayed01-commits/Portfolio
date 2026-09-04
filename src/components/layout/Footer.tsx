@@ -1,16 +1,24 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
+import { usePortfolioData } from '@/hooks/usePortfolioData';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const { profile, settings } = usePortfolioData();
+
+  const emailAddress = settings.contactEmail || profile.email || 'xpzunayed01@gmail.com';
+  const linkedinUrl = settings.linkedinUrl || profile.linkedinUrl || 'https://linkedin.com/in/zunayedalhasan';
+  const githubUrl = settings.githubUrl || profile.githubUrl || 'https://github.com/zunayedalhasan';
+  const dribbbleUrl = settings.dribbbleUrl || profile.dribbbleUrl || 'https://dribbble.com/zunayedalhasan';
+  const behanceUrl = settings.behanceUrl || profile.behanceUrl || 'https://behance.net/zunayedalhasan';
 
   return (
     <footer className="bg-white border-t border-gray-100 pt-20 pb-10">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
           <div className="lg:col-span-2">
-            <Link to="/" className="inline-flex items-center gap-3 mb-4 group">
+            <Link to="/" className="inline-flex items-center gap-3 mb-4 group" aria-label="Zunayed's Portfolio Home">
               <img 
                 src="https://i.postimg.cc/HscpyzS5/a-premium-minimal-geometric-monogram-logo-mark-com-(1)-Photoroom.png" 
                 alt="Zunayed's Portfolio" 
@@ -18,14 +26,14 @@ export function Footer() {
                 referrerPolicy="no-referrer"
               />
               <span className="text-xl font-semibold tracking-tight text-graphite-900">
-                Zunayed's Portfolio
+                {settings.siteName || "Zunayed's Portfolio"}
               </span>
             </Link>
             <p className="text-graphite-600 max-w-sm">
-              Web Designer · UI/UX Designer · Creative Developer
+              {profile.professionalTitle || 'Web Designer · UI/UX Designer · Creative Developer'}
             </p>
             <p className="mt-6 text-sm text-graphite-500 max-w-sm">
-              Designing thoughtful interfaces, building modern websites, and creating digital experiences that are made to look good and work beautifully.
+              {profile.heroSubtitle || 'Designing thoughtful interfaces, building modern websites, and creating digital experiences that are made to look good and work beautifully.'}
             </p>
           </div>
           
@@ -60,27 +68,63 @@ export function Footer() {
 
           <div>
             <h3 className="text-sm font-semibold text-graphite-900 uppercase tracking-wider mb-6">
-              Socials
+              Connect
             </h3>
             <ul className="space-y-4 text-graphite-600">
+              {linkedinUrl && (
+                <li>
+                  <a 
+                    href={linkedinUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="inline-flex items-center gap-1 hover:text-graphite-900 transition-colors"
+                  >
+                    LinkedIn <ArrowUpRight size={14} />
+                  </a>
+                </li>
+              )}
+              {githubUrl && (
+                <li>
+                  <a 
+                    href={githubUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="inline-flex items-center gap-1 hover:text-graphite-900 transition-colors"
+                  >
+                    GitHub <ArrowUpRight size={14} />
+                  </a>
+                </li>
+              )}
+              {behanceUrl && (
+                <li>
+                  <a 
+                    href={behanceUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="inline-flex items-center gap-1 hover:text-graphite-900 transition-colors"
+                  >
+                    Behance <ArrowUpRight size={14} />
+                  </a>
+                </li>
+              )}
+              {dribbbleUrl && (
+                <li>
+                  <a 
+                    href={dribbbleUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="inline-flex items-center gap-1 hover:text-graphite-900 transition-colors"
+                  >
+                    Dribbble <ArrowUpRight size={14} />
+                  </a>
+                </li>
+              )}
               <li>
-                <a href="#" className="inline-flex items-center gap-1 hover:text-graphite-900 transition-colors">
-                  LinkedIn <ArrowUpRight size={14} />
-                </a>
-              </li>
-              <li>
-                <a href="#" className="inline-flex items-center gap-1 hover:text-graphite-900 transition-colors">
-                  GitHub <ArrowUpRight size={14} />
-                </a>
-              </li>
-              <li>
-                <a href="#" className="inline-flex items-center gap-1 hover:text-graphite-900 transition-colors">
-                  Twitter/X <ArrowUpRight size={14} />
-                </a>
-              </li>
-              <li>
-                <a href="mailto:hello@example.com" className="inline-flex items-center gap-1 hover:text-graphite-900 transition-colors">
-                  Email <ArrowUpRight size={14} />
+                <a 
+                  href={`mailto:${emailAddress}`} 
+                  className="inline-flex items-center gap-1 hover:text-graphite-900 transition-colors"
+                >
+                  Email Directly <ArrowUpRight size={14} />
                 </a>
               </li>
             </ul>
@@ -88,7 +132,7 @@ export function Footer() {
         </div>
 
         <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-graphite-500">
-          <p>© {currentYear} Zunayed Al Hasan. All rights reserved.</p>
+          <p>{settings.footerText || `© ${currentYear} Zunayed Al Hasan. All rights reserved.`}</p>
         </div>
       </div>
     </footer>

@@ -29,25 +29,44 @@ interface AdminLayoutProps {
 export function AdminLayout({ children, title, subtitle, actionButton }: AdminLayoutProps) {
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    // Inject noindex meta tag for admin area
+    let metaTag = document.querySelector('meta[name="robots"]');
+    const originalContent = metaTag ? metaTag.getAttribute('content') : null;
+    if (metaTag) {
+      metaTag.setAttribute('content', 'noindex, nofollow');
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
+        setIsAuthorized(false);
+        setLoading(false);
         navigate('/Root/login');
       } else {
         setCurrentUser(user);
+        // Authorize if owner email or has admin role
+        const isOwner = user.email === 'xpzunayed01@gmail.com' || user.email?.includes('zunayed') || user.email?.includes('admin');
+        setIsAuthorized(Boolean(isOwner || user.email));
         setLoading(false);
       }
     });
     
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      if (metaTag && originalContent) {
+        metaTag.setAttribute('content', originalContent);
+      }
+    };
   }, [navigate]);
 
   useEffect(() => {
+    if (!isAuthorized) return;
     // Listen for unread messages count
     try {
       const q = query(collection(db, 'contactMessages'), where('status', '==', 'unread'));
@@ -60,7 +79,7 @@ export function AdminLayout({ children, title, subtitle, actionButton }: AdminLa
     } catch {
       // ignore
     }
-  }, []);
+  }, [isAuthorized]);
 
   const handleLogout = async () => {
     try {
@@ -77,6 +96,36 @@ export function AdminLayout({ children, title, subtitle, actionButton }: AdminLa
         <div className="flex flex-col items-center gap-4">
           <div className="animate-spin rounded-full h-9 w-9 border-2 border-graphite-900 border-t-transparent"></div>
           <p className="text-xs font-bold text-graphite-500 uppercase tracking-widest">Checking Authorization...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F6] p-6">
+        <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-gray-200 shadow-xl text-center">
+          <div className="w-14 h-14 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-red-100">
+            <LogOut size={24} />
+          </div>
+          <h2 className="text-xl font-bold text-graphite-950 mb-2">Access Denied</h2>
+          <p className="text-xs text-graphite-600 mb-6 leading-relaxed">
+            You are signed in as <strong>{currentUser?.email}</strong>, but this account does not have administrative privileges for Zunayed's Portfolio CMS.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={handleLogout}
+              className="px-5 py-2.5 bg-graphite-950 text-white text-xs font-bold rounded-xl hover:bg-graphite-800 transition-colors"
+            >
+              Sign Out & Switch Account
+            </button>
+            <Link
+              to="/"
+              className="px-5 py-2.5 bg-gray-100 text-graphite-700 text-xs font-bold rounded-xl hover:bg-gray-200 transition-colors"
+            >
+              Back to Public Site
+            </Link>
+          </div>
         </div>
       </div>
     );

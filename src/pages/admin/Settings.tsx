@@ -91,13 +91,15 @@ export function AdminSettings() {
     try {
       toastInfo('Generating complete portfolio backup...');
       const data = await exportAllDataAsJSON();
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+      const jsonBlob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
+      const objectUrl = URL.createObjectURL(jsonBlob);
       const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `portfolio-backup-${new Date().toISOString().slice(0,10)}.json`);
+      downloadAnchor.href = objectUrl;
+      downloadAnchor.download = `portfolio-backup-${new Date().toISOString().slice(0,10)}.json`;
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
+      URL.revokeObjectURL(objectUrl);
       toastSuccess('Backup JSON exported successfully');
     } catch (err: any) {
       console.error(err);

@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Project, Service, Certificate, SiteProfile, SiteSettings } from '@/types';
-import { fallbackProjects, fallbackServices, fallbackCertificates } from '@/data';
+import { Project, Service, Certificate, Tool, SiteProfile, SiteSettings } from '@/types';
+import { fallbackProjects, fallbackServices, fallbackCertificates, fallbackTools } from '@/data';
 import { defaultProfile, defaultSettings } from '@/lib/portfolioService';
 
 export function usePortfolioData() {
   const [projects, setProjects] = useState<Project[]>(fallbackProjects);
   const [services, setServices] = useState<Service[]>(fallbackServices);
   const [certificates, setCertificates] = useState<Certificate[]>(fallbackCertificates);
+  const [tools, setTools] = useState<Tool[]>(fallbackTools);
   const [profile, setProfile] = useState<SiteProfile>(defaultProfile);
   const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
   const [loading, setLoading] = useState<boolean>(true);
@@ -56,6 +57,19 @@ export function usePortfolioData() {
       });
       unsubs.push(certUnsub);
 
+      // Tools listener
+      const toolsUnsub = onSnapshot(collection(db, 'tools'), (snap) => {
+        if (!snap.empty) {
+          const list = snap.docs.map(d => ({ ...d.data() } as Tool));
+          setTools(list);
+        } else {
+          setTools(fallbackTools);
+        }
+      }, () => {
+        setTools(fallbackTools);
+      });
+      unsubs.push(toolsUnsub);
+
       // Profile listener
       const profileUnsub = onSnapshot(doc(db, 'profile', 'main'), (snap) => {
         if (snap.exists()) {
@@ -90,6 +104,7 @@ export function usePortfolioData() {
     projects,
     services,
     certificates,
+    tools,
     profile,
     settings,
     loading

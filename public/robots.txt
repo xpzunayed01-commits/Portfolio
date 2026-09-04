@@ -1,0 +1,21 @@
+# Robots.txt for Zunayed's Portfolio (https://zunayedalhasan.vercel.app/)
+User-agent: *
+Allow: /
+Allow: /work
+Allow: /work/*
+Allow: /services
+Allow: /services/*
+Allow: /case-studies
+Allow: /case-studies/*
+Allow: /certificates
+Allow: /about
+Allow: /cv
+Allow: /contact
+
+# Protect private admin CMS area from crawlers and indexers
+Disallow: /Root
+Disallow: /Root/
+Disallow: /Root/*
+
+# Sitemap index
+Sitemap: https://zunayedalhasan.vercel.app/sitemap.xml

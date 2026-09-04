@@ -8,6 +8,8 @@ import { usePortfolioData } from '@/hooks/usePortfolioData';
 export function Contact() {
   const { profile, settings } = usePortfolioData();
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [honeypot, setHoneypot] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,22 +18,56 @@ export function Contact() {
     message: ''
   });
 
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage('');
+
+    // Honeypot check for automated bot submissions
+    if (honeypot.trim().length > 0) {
+      setStatus('success');
+      return;
+    }
+
+    const cleanName = formData.name.trim();
+    const cleanEmail = formData.email.trim();
+    const cleanMessage = formData.message.trim();
+
+    if (!cleanName || cleanName.length < 2) {
+      setErrorMessage('Please provide a valid name (at least 2 characters).');
+      return;
+    }
+
+    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
+      setErrorMessage('Please provide a valid email address.');
+      return;
+    }
+
+    if (!cleanMessage || cleanMessage.length < 10) {
+      setErrorMessage('Please provide some project details (at least 10 characters).');
+      return;
+    }
+
     setStatus('loading');
     
     try {
       await addDoc(collection(db, 'contactMessages'), {
-        ...formData,
+        name: cleanName.slice(0, 100),
+        email: cleanEmail.slice(0, 120),
+        projectType: formData.projectType.slice(0, 100),
+        budget: formData.budget.slice(0, 100),
+        message: cleanMessage.slice(0, 5000),
         status: 'unread',
         createdAt: serverTimestamp()
       });
       
       setStatus('success');
       setFormData({ name: '', email: '', projectType: 'Website Design', budget: '$1k - $5k', message: '' });
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       setStatus('error');
+      setErrorMessage('Failed to send inquiry. Please try again or email directly.');
     }
   };
 
@@ -204,8 +240,24 @@ export function Contact() {
                   ></textarea>
                 </div>
 
-                {status === 'error' && (
-                  <p className="text-red-500 text-xs font-medium">Failed to send message. Please try again or email directly.</p>
+                {/* Honeypot field (hidden from humans, trapped for spam bots) */}
+                <div className="opacity-0 absolute -left-[9999px] top-0 pointer-events-none" aria-hidden="true" tabIndex={-1}>
+                  <label htmlFor="user_company_url">Website URL</label>
+                  <input
+                    type="text"
+                    id="user_company_url"
+                    name="user_company_url"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
+
+                {errorMessage && (
+                  <p className="text-red-600 text-xs font-semibold p-3 bg-red-50 rounded-xl border border-red-200/60">
+                    {errorMessage}
+                  </p>
                 )}
 
                 <button 
