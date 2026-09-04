@@ -72,57 +72,57 @@ export function Contact() {
   };
 
   return (
-    <div className="min-h-screen pt-32 pb-20">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+    <div className="min-h-screen pt-24 sm:pt-32 pb-16 sm:pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16 lg:gap-24">
         
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="max-w-xl"
         >
-          <span className="text-xs font-bold uppercase tracking-widest text-graphite-500 mb-3 block">
+          <span className="text-xs font-bold uppercase tracking-widest text-graphite-500 mb-2 sm:mb-3 block">
             Start a Conversation
           </span>
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-graphite-950 mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-graphite-950 mb-4 sm:mb-6 leading-tight">
             Have an idea?<br />Let's build it.
           </h1>
-          <p className="text-lg text-graphite-600 mb-12 leading-relaxed">
+          <p className="text-base sm:text-lg text-graphite-600 mb-8 sm:mb-12 leading-relaxed">
             Whether you need a bespoke website, UI/UX design sprint, brand identity overhaul, or want to discuss a new product concept, I'd love to hear what you are working on.
           </p>
 
-          <div className="space-y-8">
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-white border border-gray-200 rounded-2xl shadow-2xs text-graphite-900">
-                <Mail size={20} />
+          <div className="space-y-6 sm:space-y-8">
+            <div className="flex items-start gap-3.5 sm:gap-4">
+              <div className="p-2.5 sm:p-3 bg-white border border-gray-200 rounded-2xl shadow-2xs text-graphite-900 shrink-0">
+                <Mail size={18} className="sm:w-5 sm:h-5" />
               </div>
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-graphite-500 mb-1">Email Directly</h3>
+                <h3 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-graphite-500 mb-0.5 sm:mb-1">Email Directly</h3>
                 <a 
                   href={`mailto:${settings.contactEmail || profile.email || 'hello@zunayed.me'}`} 
-                  className="text-lg font-bold text-graphite-900 hover:text-graphite-600 transition-colors"
+                  className="text-base sm:text-lg font-bold text-graphite-900 hover:text-graphite-600 transition-colors break-all"
                 >
                   {settings.contactEmail || profile.email || 'hello@zunayed.me'}
                 </a>
               </div>
             </div>
 
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-white border border-gray-200 rounded-2xl shadow-2xs text-graphite-900">
-                <MapPin size={20} />
+            <div className="flex items-start gap-3.5 sm:gap-4">
+              <div className="p-2.5 sm:p-3 bg-white border border-gray-200 rounded-2xl shadow-2xs text-graphite-900 shrink-0">
+                <MapPin size={18} className="sm:w-5 sm:h-5" />
               </div>
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-graphite-500 mb-1">Location</h3>
-                <p className="text-base font-semibold text-graphite-900">{profile.location || 'Dhaka, Bangladesh · Available Worldwide (Remote)'}</p>
+                <h3 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-graphite-500 mb-0.5 sm:mb-1">Location</h3>
+                <p className="text-sm sm:text-base font-semibold text-graphite-900">{profile.location || 'Dhaka, Bangladesh · Available Worldwide (Remote)'}</p>
               </div>
             </div>
 
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-white border border-gray-200 rounded-2xl shadow-2xs text-graphite-900">
-                <Globe size={20} />
+            <div className="flex items-start gap-3.5 sm:gap-4">
+              <div className="p-2.5 sm:p-3 bg-white border border-gray-200 rounded-2xl shadow-2xs text-graphite-900 shrink-0">
+                <Globe size={18} className="sm:w-5 sm:h-5" />
               </div>
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-graphite-500 mb-2">Connect Across Networks</h3>
-                <div className="flex flex-wrap gap-4 text-sm font-bold text-graphite-900">
+                <h3 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-graphite-500 mb-1 sm:mb-2">Connect Across Networks</h3>
+                <div className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-graphite-900">
                   {profile.linkedinUrl && (
                     <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">LinkedIn</a>
                   )}
@@ -146,14 +146,14 @@ export function Contact() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <div className="bg-white p-8 md:p-12 rounded-[2.5rem] border border-gray-200/80 shadow-xl shadow-gray-200/40">
+          <div className="bg-white p-6 sm:p-8 md:p-12 rounded-3xl sm:rounded-[2.5rem] border border-gray-200/80 shadow-xl shadow-gray-200/40">
             {status === 'success' ? (
-              <div className="text-center py-16">
-                <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-emerald-600 border border-emerald-100">
-                  <CheckCircle2 size={36} />
+              <div className="text-center py-10 sm:py-16">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 text-emerald-600 border border-emerald-100">
+                  <CheckCircle2 size={32} className="sm:w-9 sm:h-9" />
                 </div>
-                <h3 className="text-2xl font-bold text-graphite-950 mb-2">Inquiry Received</h3>
-                <p className="text-sm text-graphite-600 mb-8 max-w-sm mx-auto leading-relaxed">
+                <h3 className="text-xl sm:text-2xl font-bold text-graphite-950 mb-2">Inquiry Received</h3>
+                <p className="text-xs sm:text-sm text-graphite-600 mb-6 sm:mb-8 max-w-sm mx-auto leading-relaxed">
                   Thank you for reaching out! Your message has been routed to my inbox. I typically respond within 24 hours.
                 </p>
                 <button 
@@ -164,8 +164,8 @@ export function Contact() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div>
                     <label htmlFor="name" className="block text-xs font-bold uppercase text-graphite-700 mb-1.5">Your Name *</label>
                     <input 
@@ -174,7 +174,7 @@ export function Contact() {
                       required
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-xs focus:bg-white focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all font-medium"
+                      className="w-full px-3.5 py-3 rounded-xl bg-gray-50 border border-gray-200 text-xs sm:text-sm focus:bg-white focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all font-medium"
                       placeholder="e.g. Alex Morgan"
                     />
                   </div>
@@ -186,20 +186,20 @@ export function Contact() {
                       required
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-xs focus:bg-white focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all font-medium"
+                      className="w-full px-3.5 py-3 rounded-xl bg-gray-50 border border-gray-200 text-xs sm:text-sm focus:bg-white focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all font-medium"
                       placeholder="alex@company.com"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div>
                     <label htmlFor="projectType" className="block text-xs font-bold uppercase text-graphite-700 mb-1.5">Project Scope</label>
                     <select 
                       id="projectType"
                       value={formData.projectType}
                       onChange={(e) => setFormData({...formData, projectType: e.target.value})}
-                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-xs focus:bg-white focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all font-medium"
+                      className="w-full px-3.5 py-3 rounded-xl bg-gray-50 border border-gray-200 text-xs sm:text-sm focus:bg-white focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all font-medium"
                     >
                       <option value="Website Design">Website Design</option>
                       <option value="UI/UX Design">UI/UX Design</option>
@@ -216,7 +216,7 @@ export function Contact() {
                       id="budget"
                       value={formData.budget}
                       onChange={(e) => setFormData({...formData, budget: e.target.value})}
-                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-xs focus:bg-white focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all font-medium"
+                      className="w-full px-3.5 py-3 rounded-xl bg-gray-50 border border-gray-200 text-xs sm:text-sm focus:bg-white focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all font-medium"
                     >
                       <option value="< $1k">Under $1,000</option>
                       <option value="$1k - $3k">$1,000 – $3,000</option>
@@ -235,7 +235,7 @@ export function Contact() {
                     rows={4}
                     value={formData.message}
                     onChange={(e) => setFormData({...formData, message: e.target.value})}
-                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-xs focus:bg-white focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all resize-none font-medium leading-relaxed"
+                    className="w-full px-3.5 py-3 rounded-xl bg-gray-50 border border-gray-200 text-xs sm:text-sm focus:bg-white focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all resize-none font-medium leading-relaxed"
                     placeholder="Tell me about your goals, timeline, and key requirements..."
                   ></textarea>
                 </div>
@@ -263,7 +263,7 @@ export function Contact() {
                 <button 
                   type="submit" 
                   disabled={status === 'loading'}
-                  className="w-full py-4 bg-graphite-950 text-white text-xs font-bold rounded-xl hover:bg-graphite-800 transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-3.5 sm:py-4 bg-graphite-950 text-white text-xs sm:text-sm font-bold rounded-xl hover:bg-graphite-800 transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
                 >
                   {status === 'loading' ? 'Sending Inquiry...' : 'Submit Inquiry'}
                   {status !== 'loading' && <ArrowRight size={16} />}

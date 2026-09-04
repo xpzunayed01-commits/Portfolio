@@ -81,6 +81,29 @@ export function AdminLayout({ children, title, subtitle, actionButton }: AdminLa
     }
   }, [isAuthorized]);
 
+  // Close mobile drawer on route change & manage body scroll lock
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMobileMenuOpen(false);
+      }
+    };
+    if (mobileMenuOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   const handleLogout = async () => {
     try {
       await signOut(auth);

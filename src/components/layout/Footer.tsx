@@ -14,34 +14,34 @@ export function Footer() {
   const behanceUrl = settings.behanceUrl || profile.behanceUrl || 'https://behance.net/zunayedalhasan';
 
   return (
-    <footer className="bg-white border-t border-gray-100 pt-20 pb-10">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
-          <div className="lg:col-span-2">
-            <Link to="/" className="inline-flex items-center gap-3 mb-4 group" aria-label="Zunayed's Portfolio Home">
+    <footer className="bg-white border-t border-gray-100 pt-12 sm:pt-20 pb-8 sm:pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8 mb-12 sm:mb-16">
+          <div className="sm:col-span-2">
+            <Link to="/" className="inline-flex items-center gap-3 mb-3 sm:mb-4 group" aria-label="Zunayed's Portfolio Home">
               <img 
                 src="https://i.postimg.cc/HscpyzS5/a-premium-minimal-geometric-monogram-logo-mark-com-(1)-Photoroom.png" 
                 alt="Zunayed's Portfolio" 
-                className="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                className="h-9 sm:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
                 referrerPolicy="no-referrer"
               />
-              <span className="text-xl font-semibold tracking-tight text-graphite-900">
+              <span className="text-lg sm:text-xl font-black tracking-tight text-graphite-900">
                 {settings.siteName || "Zunayed's Portfolio"}
               </span>
             </Link>
-            <p className="text-graphite-600 max-w-sm">
+            <p className="text-graphite-600 text-sm sm:text-base font-medium max-w-sm leading-relaxed">
               {profile.professionalTitle || 'Web Designer · UI/UX Designer · Creative Developer'}
             </p>
-            <p className="mt-6 text-sm text-graphite-500 max-w-sm">
+            <p className="mt-3 sm:mt-5 text-xs sm:text-sm text-graphite-500 max-w-sm leading-relaxed">
               {profile.heroSubtitle || 'Designing thoughtful interfaces, building modern websites, and creating digital experiences that are made to look good and work beautifully.'}
             </p>
           </div>
           
           <div>
-            <h3 className="text-sm font-semibold text-graphite-900 uppercase tracking-wider mb-6">
+            <h3 className="text-xs font-bold text-graphite-900 uppercase tracking-widest mb-4 sm:mb-6">
               Navigation
             </h3>
-            <ul className="space-y-4 text-graphite-600">
+            <ul className="space-y-3 sm:space-y-3.5 text-xs sm:text-sm font-medium text-graphite-600">
               <li>
                 <Link to="/work" className="hover:text-graphite-900 transition-colors">Work</Link>
               </li>
@@ -67,10 +67,10 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-graphite-900 uppercase tracking-wider mb-6">
+            <h3 className="text-xs font-bold text-graphite-900 uppercase tracking-widest mb-4 sm:mb-6">
               Connect
             </h3>
-            <ul className="space-y-4 text-graphite-600">
+            <ul className="space-y-3 sm:space-y-3.5 text-xs sm:text-sm font-medium text-graphite-600">
               {linkedinUrl && (
                 <li>
                   <a 
@@ -131,7 +131,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-graphite-500">
+        <div className="pt-6 sm:pt-8 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-xs sm:text-sm text-graphite-500">
           <p>{settings.footerText || `© ${currentYear} Zunayed Al Hasan. All rights reserved.`}</p>
         </div>
       </div>
