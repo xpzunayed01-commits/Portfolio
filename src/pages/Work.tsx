@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link, useNavigate } from 'react-router-dom';
-import { fallbackProjects } from '@/data';
+import { useNavigate } from 'react-router-dom';
+import { usePortfolioData } from '@/hooks/usePortfolioData';
 
 export function Work() {
+  const { projects } = usePortfolioData();
   const [filter, setFilter] = useState('All');
   const navigate = useNavigate();
   
-  const categories = ['All', ...new Set(fallbackProjects.map(p => p.category))];
+  const categories = ['All', ...new Set(projects.map(p => p.category))];
   
   const filteredProjects = filter === 'All' 
-    ? fallbackProjects 
-    : fallbackProjects.filter(p => p.category === filter);
+    ? projects 
+    : projects.filter(p => p.category === filter);
 
   return (
     <div className="min-h-screen pt-32 pb-20">
@@ -19,7 +20,7 @@ export function Work() {
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-4xl md:text-5xl font-semibold tracking-tight text-graphite-900 mb-6"
+          className="text-4xl md:text-5xl font-bold tracking-tight text-graphite-900 mb-6"
         >
           Selected Work
         </motion.h1>
@@ -42,7 +43,7 @@ export function Work() {
             <button
               key={cat}
               onClick={() => setFilter(cat)}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+              className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all ${
                 filter === cat 
                   ? 'bg-graphite-900 text-white shadow-md' 
                   : 'bg-white text-graphite-600 border border-gray-200 hover:border-graphite-900 hover:text-graphite-900'
@@ -55,12 +56,12 @@ export function Work() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6">
-        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-x-12 gap-y-16">
+        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
           <AnimatePresence mode="popLayout">
             {filteredProjects.map((project, idx) => (
               <motion.div
                 layout
-                key={project.id}
+                key={project.id || project.slug}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -79,12 +80,12 @@ export function Work() {
                 </div>
                 <div>
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="text-xs font-semibold text-graphite-500 uppercase tracking-widest">{project.category}</span>
+                    <span className="text-xs font-bold text-graphite-500 uppercase tracking-widest">{project.category}</span>
                     <span className="w-1 h-1 rounded-full bg-gray-300"></span>
                     <span className="text-xs font-medium text-graphite-400">{project.year}</span>
                   </div>
-                  <h3 className="text-3xl font-semibold text-graphite-900 mb-3 group-hover:underline underline-offset-4 decoration-2">{project.title}</h3>
-                  <p className="text-graphite-600 text-balance line-clamp-2">{project.shortDescription}</p>
+                  <h3 className="text-2xl md:text-3xl font-bold text-graphite-900 mb-3 group-hover:underline underline-offset-4 decoration-2">{project.title}</h3>
+                  <p className="text-graphite-600 text-balance line-clamp-2 text-sm">{project.shortDescription}</p>
                 </div>
               </motion.div>
             ))}

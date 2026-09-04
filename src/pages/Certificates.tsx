@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { fallbackCertificates } from '@/data';
+import { usePortfolioData } from '@/hooks/usePortfolioData';
 import { Maximize2, X, ExternalLink } from 'lucide-react';
 
 export function Certificates() {
+  const { certificates } = usePortfolioData();
   const [selectedCert, setSelectedCert] = useState<string | null>(null);
 
   return (
@@ -12,7 +13,7 @@ export function Certificates() {
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-4xl md:text-5xl font-semibold tracking-tight text-graphite-900 mb-6"
+          className="text-4xl md:text-5xl font-bold tracking-tight text-graphite-900 mb-6"
         >
           Certificates & Learning
         </motion.h1>
@@ -28,7 +29,7 @@ export function Certificates() {
 
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {fallbackCertificates.map((cert, idx) => (
+          {certificates.map((cert, idx) => (
             <motion.div
               key={cert.id}
               initial={{ opacity: 0, y: 20 }}
@@ -44,18 +45,18 @@ export function Certificates() {
                   <Maximize2 size={32} className="text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md" />
                 </div>
               </div>
-              <h3 className="text-xl font-semibold text-graphite-900 mb-2">{cert.title}</h3>
+              <h3 className="text-xl font-bold text-graphite-900 mb-2">{cert.title}</h3>
               <p className="text-sm font-medium text-graphite-600 mb-6">{cert.issuer}</p>
               
-              <div className="mt-auto space-y-2">
+              <div className="mt-auto space-y-2 pt-4 border-t border-gray-100">
                 <div className="flex justify-between text-xs text-graphite-500">
                   <span>Issued:</span>
-                  <span className="font-medium text-graphite-900">{cert.issued}</span>
+                  <span className="font-semibold text-graphite-900">{cert.issued}</span>
                 </div>
                 {cert.expiration && (
                   <div className="flex justify-between text-xs text-graphite-500">
                     <span>Expires:</span>
-                    <span className="font-medium text-graphite-900">{cert.expiration}</span>
+                    <span className="font-semibold text-graphite-900">{cert.expiration}</span>
                   </div>
                 )}
               </div>
@@ -66,10 +67,7 @@ export function Certificates() {
 
       <AnimatePresence>
         {selectedCert && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <div
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-graphite-900/95 backdrop-blur-sm"
             onClick={() => setSelectedCert(null)}
           >
@@ -79,16 +77,13 @@ export function Certificates() {
             >
               <X size={32} />
             </button>
-            <motion.img 
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
+            <img 
               src={selectedCert} 
               alt="Certificate Full" 
               className="max-w-full max-h-[90vh] rounded-lg shadow-2xl" 
               onClick={(e) => e.stopPropagation()}
             />
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

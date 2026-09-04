@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { fallbackServices } from '@/data';
+import { usePortfolioData } from '@/hooks/usePortfolioData';
 import { Monitor, Layers, Code, Sparkles, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -12,13 +12,15 @@ const iconMap: Record<string, React.ReactNode> = {
 };
 
 export function Services() {
+  const { services } = usePortfolioData();
+
   return (
     <div className="min-h-screen pt-32 pb-20">
       <div className="max-w-7xl mx-auto px-6 mb-24">
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-4xl md:text-6xl font-semibold tracking-tight text-graphite-900 mb-6 max-w-3xl leading-tight"
+          className="text-4xl md:text-6xl font-bold tracking-tight text-graphite-900 mb-6 max-w-3xl leading-tight"
         >
           Elevating brands through strategic design and modern technology.
         </motion.h1>
@@ -34,9 +36,9 @@ export function Services() {
 
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
-          {fallbackServices.map((service, idx) => (
+          {services.map((service, idx) => (
             <motion.div
-              key={service.id}
+              key={service.id || service.slug}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -50,15 +52,15 @@ export function Services() {
                 <span className="text-sm font-semibold text-graphite-400 font-mono tracking-widest">{service.number}</span>
               </div>
               
-              <h2 className="text-3xl font-semibold text-graphite-900 mb-4">{service.title}</h2>
+              <h2 className="text-3xl font-bold text-graphite-900 mb-4">{service.title}</h2>
               <p className="text-lg text-graphite-600 mb-10 text-balance flex-grow">{service.shortDescription}</p>
               
               <div className="mb-10">
-                <h4 className="text-xs font-semibold uppercase tracking-widest text-graphite-400 mb-4">Deliverables</h4>
+                <h4 className="text-xs font-bold uppercase tracking-widest text-graphite-400 mb-4">Deliverables</h4>
                 <ul className="space-y-3">
-                  {service.deliverables.map(item => (
+                  {service.deliverables?.map(item => (
                     <li key={item} className="text-sm font-medium text-graphite-900 flex items-center gap-3">
-                      <div className="w-1 h-1 rounded-full bg-graphite-900/40"></div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-graphite-900/40"></div>
                       {item}
                     </li>
                   ))}
@@ -66,7 +68,7 @@ export function Services() {
               </div>
 
               <div className="pt-8 border-t border-gray-100 mt-auto">
-                <Link to={`/services/${service.slug}`} className="inline-flex items-center gap-2 text-sm font-medium text-graphite-900 group-hover:gap-4 transition-all">
+                <Link to={`/services/${service.slug}`} className="inline-flex items-center gap-2 text-sm font-bold text-graphite-900 group-hover:gap-4 transition-all">
                   Inquire about this service <ArrowRight size={16} />
                 </Link>
               </div>

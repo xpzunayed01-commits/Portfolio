@@ -15,7 +15,12 @@ import { ServiceDetail } from './pages/ServiceDetail';
 import { Contact } from './pages/Contact';
 import { AdminLogin } from './pages/admin/Login';
 import { AdminDashboard } from './pages/admin/Dashboard';
+import { AdminProjects } from './pages/admin/Projects';
+import { AdminServices } from './pages/admin/Services';
+import { AdminCertificates } from './pages/admin/Certificates';
 import { AdminMessages } from './pages/admin/Messages';
+import { AdminProfile } from './pages/admin/Profile';
+import { AdminSettings } from './pages/admin/Settings';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -49,9 +54,15 @@ export default function App() {
           <Route path="/services/:slug" element={<ServiceDetail />} />
           <Route path="/contact" element={<Contact />} />
           
+          {/* Admin Protected Routes */}
           <Route path="/Root/login" element={<AdminLogin />} />
           <Route path="/Root" element={<AdminDashboard />} />
+          <Route path="/Root/projects" element={<AdminProjects />} />
+          <Route path="/Root/services" element={<AdminServices />} />
+          <Route path="/Root/certificates" element={<AdminCertificates />} />
           <Route path="/Root/messages" element={<AdminMessages />} />
+          <Route path="/Root/profile" element={<AdminProfile />} />
+          <Route path="/Root/settings" element={<AdminSettings />} />
           
           <Route path="*" element={
             <div className="min-h-screen flex items-center justify-center pt-20">
