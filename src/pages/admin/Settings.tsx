@@ -1,191 +1,412 @@
 import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { 
-  Settings, 
+  Settings as SettingsIcon, 
   Save, 
-  RefreshCw, 
+  ShieldCheck, 
+  KeyRound, 
   Database, 
-  Check, 
-  AlertCircle, 
   Globe, 
-  Image as ImageIcon 
+  Download, 
+  RefreshCw, 
+  Check, 
+  AlertTriangle,
+  UserPlus,
+  Trash2,
+  Lock,
+  Mail
 } from 'lucide-react';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { doc, onSnapshot, getDoc } from 'firebase/firestore';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { db, auth } from '@/lib/firebase';
+import { SiteSettings } from '@/types';
+import { fallbackSettings } from '@/data';
 import { 
-  defaultSettings, 
-  saveSettings, 
+  saveSiteSettings, 
   seedFirestoreWithDefaults, 
-  SiteSettings 
+  exportAllDataAsJSON 
 } from '@/lib/portfolioService';
+import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
+import { useToast } from '@/context/ToastContext';
 
 export function AdminSettings() {
-  const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
+  const { toastSuccess, toastError, toastInfo } = useToast();
+  const [settings, setSettings] = useState<SiteSettings>(fallbackSettings);
+  const [activeTab, setActiveTab] = useState<'general' | 'security' | 'database'>('general');
   const [saving, setSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
   const [seeding, setSeeding] = useState(false);
-  const [seedSuccess, setSeedSuccess] = useState(false);
+
+  // Modals & Confirmation
+  const [confirmSeedOpen, setConfirmSeedOpen] = useState(false);
+  const [resetEmailSending, setResetEmailSending] = useState(false);
+
+  // New admin email input
+  const [newAdminEmail, setNewAdminEmail] = useState('');
+
+  const currentUser = auth.currentUser;
 
   useEffect(() => {
-    const unsub = onSnapshot(doc(db, 'settings', 'main'), (snap) => {
+    const unsub = onSnapshot(doc(db, 'siteContent', 'settings'), (snap) => {
       if (snap.exists()) {
-        setSettings({ ...defaultSettings, ...snap.data() } as SiteSettings);
+        setSettings(snap.data() as SiteSettings);
+      } else {
+        setSettings(fallbackSettings);
       }
     }, () => {
-      setSettings(defaultSettings);
+      setSettings(fallbackSettings);
     });
 
     return () => unsub();
   }, []);
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     try {
       setSaving(true);
-      await saveSettings(settings);
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (err) {
+      await saveSiteSettings(settings);
+      toastSuccess('Site settings saved');
+    } catch (err: any) {
       console.error(err);
-      alert('Error updating settings: ' + (err as Error).message);
+      toastError(err.message || 'Error saving settings');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleSeed = async () => {
-    if (!confirm('This will seed/refresh the Firestore database with initial sample projects, services, certificates, and profile. Continue?')) {
-      return;
-    }
+  const handleSeedData = async () => {
     try {
       setSeeding(true);
       await seedFirestoreWithDefaults();
-      setSeedSuccess(true);
-      setTimeout(() => setSeedSuccess(false), 4000);
-    } catch (err) {
+      setConfirmSeedOpen(false);
+      toastSuccess('Firestore successfully seeded with portfolio defaults');
+    } catch (err: any) {
       console.error(err);
-      alert('Error seeding database: ' + (err as Error).message);
+      toastError(err.message || 'Error seeding data');
     } finally {
       setSeeding(false);
     }
   };
 
+  const handleExportJSON = async () => {
+    try {
+      toastInfo('Generating complete portfolio backup...');
+      const data = await exportAllDataAsJSON();
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `portfolio-backup-${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      toastSuccess('Backup JSON exported successfully');
+    } catch (err: any) {
+      console.error(err);
+      toastError('Failed to export backup');
+    }
+  };
+
+  const handleSendPasswordReset = async () => {
+    if (!currentUser?.email) {
+      toastError('No current logged in admin email found');
+      return;
+    }
+    try {
+      setResetEmailSending(true);
+      await sendPasswordResetEmail(auth, currentUser.email);
+      toastSuccess(`Password reset email sent to ${currentUser.email}`);
+    } catch (err: any) {
+      console.error(err);
+      toastError(err.message || 'Failed to send password reset');
+    } finally {
+      setResetEmailSending(false);
+    }
+  };
+
+  const addAdminEmail = () => {
+    if (!newAdminEmail.trim()) return;
+    const email = newAdminEmail.trim().toLowerCase();
+    if (!settings.authorizedAdmins?.includes(email)) {
+      setSettings(prev => ({
+        ...prev,
+        authorizedAdmins: [...(prev.authorizedAdmins || []), email]
+      }));
+      setNewAdminEmail('');
+      toastSuccess(`Added ${email} to authorized admin list (Click Save Changes to persist)`);
+    } else {
+      toastInfo('Email already in list');
+    }
+  };
+
+  const removeAdminEmail = (emailToRemove: string) => {
+    setSettings(prev => ({
+      ...prev,
+      authorizedAdmins: (prev.authorizedAdmins || []).filter(e => e !== emailToRemove)
+    }));
+    toastInfo(`Removed ${emailToRemove} (Click Save Changes to persist)`);
+  };
+
   return (
     <AdminLayout
-      title="Site Settings & System"
+      title="System Settings"
+      subtitle="Configure global SEO meta tags, brand details, admin authorization, and database backups."
       actionButton={
         <button
-          onClick={handleSave}
+          onClick={() => handleSave()}
           disabled={saving}
-          className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold text-white bg-graphite-900 rounded-xl hover:bg-graphite-800 transition-all shadow-xs"
+          className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold text-white bg-graphite-950 rounded-xl hover:bg-graphite-800 transition-all shadow-xs cursor-pointer"
         >
-          {saveSuccess ? <Check size={16} className="text-green-400" /> : <Save size={16} />}
-          <span>{saving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save Settings'}</span>
+          <Save size={16} />
+          <span>{saving ? 'Saving...' : 'Save Settings'}</span>
         </button>
       }
     >
-      <div className="space-y-8">
-        {/* Branding & Visual Assets */}
-        <form onSubmit={handleSave} className="bg-white rounded-2xl border border-gray-200/80 p-6 shadow-xs space-y-6">
-          <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
-            <div className="p-2.5 bg-gray-100 rounded-xl text-graphite-900">
-              <ImageIcon size={20} />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-graphite-900">Brand Identity & Logo</h2>
-              <p className="text-xs text-graphite-500">Manage site logo, favicon, and brand metadata</p>
-            </div>
-          </div>
+      {/* Tabs */}
+      <div className="flex gap-2 border-b border-gray-200 pb-3 mb-6 overflow-x-auto scrollbar-none">
+        <button
+          onClick={() => setActiveTab('general')}
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+            activeTab === 'general' ? 'bg-graphite-950 text-white shadow-xs' : 'bg-white text-graphite-600 hover:bg-gray-100'
+          }`}
+        >
+          1. General & SEO
+        </button>
+        <button
+          onClick={() => setActiveTab('security')}
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+            activeTab === 'security' ? 'bg-graphite-950 text-white shadow-xs' : 'bg-white text-graphite-600 hover:bg-gray-100'
+          }`}
+        >
+          2. Security & Admins
+        </button>
+        <button
+          onClick={() => setActiveTab('database')}
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+            activeTab === 'database' ? 'bg-graphite-950 text-white shadow-xs' : 'bg-white text-graphite-600 hover:bg-gray-100'
+          }`}
+        >
+          3. Database & Backups
+        </button>
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label className="block text-xs font-bold text-graphite-700 uppercase mb-1.5">
-                Site Name / Title
-              </label>
-              <input
-                type="text"
-                required
-                value={settings.siteName}
-                onChange={(e) => setSettings({ ...settings, siteName: e.target.value })}
-                className="w-full px-3.5 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900"
-              />
-            </div>
+      <div className="space-y-6">
+        {/* TAB 1: General & SEO */}
+        {activeTab === 'general' && (
+          <div className="bg-white rounded-2xl border border-gray-200/80 p-6 md:p-8 shadow-xs space-y-6">
+            <h3 className="text-sm font-bold text-graphite-950 uppercase tracking-wider">SEO & Site Identity</h3>
 
-            <div>
-              <label className="block text-xs font-bold text-graphite-700 uppercase mb-1.5">
-                Logo Text Label
-              </label>
-              <input
-                type="text"
-                value={settings.logoText}
-                onChange={(e) => setSettings({ ...settings, logoText: e.target.value })}
-                className="w-full px-3.5 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-xs font-bold text-graphite-700 uppercase mb-1.5">
-                Logo Image URL (Geometric Monogram)
-              </label>
-              <div className="flex gap-4 items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  Site Name / Title Tag *
+                </label>
                 <input
-                  type="url"
+                  type="text"
                   required
-                  value={settings.logoImageUrl}
-                  onChange={(e) => setSettings({ ...settings, logoImageUrl: e.target.value })}
-                  className="flex-1 px-3.5 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900 font-mono text-xs"
+                  value={settings.siteName}
+                  onChange={(e) => setSettings({ ...settings, siteName: e.target.value })}
+                  className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900 font-bold"
                 />
-                <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0">
-                  <img src={settings.logoImageUrl} alt="Logo Preview" className="w-8 h-8 object-contain" />
-                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  Primary Contact Email
+                </label>
+                <input
+                  type="email"
+                  value={settings.contactEmail}
+                  onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })}
+                  placeholder="hello@zunayed.me"
+                  className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900"
+                />
               </div>
             </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-xs font-bold text-graphite-700 uppercase mb-1.5">
+            <div>
+              <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                Meta Description (Search Engines & Social Sharing)
+              </label>
+              <textarea
+                rows={3}
+                value={settings.metaDescription}
+                onChange={(e) => setSettings({ ...settings, metaDescription: e.target.value })}
+                placeholder="Personal portfolio of Zunayed Al Hasan - UI/UX Designer & Creative Developer..."
+                className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900 leading-relaxed"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
                 Footer Copyright Text
               </label>
               <input
                 type="text"
                 value={settings.footerText}
                 onChange={(e) => setSettings({ ...settings, footerText: e.target.value })}
-                className="w-full px-3.5 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900"
+                placeholder="© 2025 Zunayed Al Hasan. All rights reserved."
+                className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900"
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200">
+              <div>
+                <p className="text-xs font-bold text-graphite-900">Enable Contact Inquiries Form</p>
+                <p className="text-[11px] text-graphite-500">Allow prospective clients to submit messages on /contact</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={settings.allowMessages !== false}
+                onChange={(e) => setSettings({ ...settings, allowMessages: e.target.checked })}
+                className="w-5 h-5 text-graphite-950 rounded border-gray-300 focus:ring-graphite-950 cursor-pointer"
               />
             </div>
           </div>
-        </form>
+        )}
 
-        {/* Database Sync / Initializer */}
-        <div className="bg-white rounded-2xl border border-gray-200/80 p-6 shadow-xs">
-          <div className="flex items-center gap-3 pb-4 border-b border-gray-100 mb-6">
-            <div className="p-2.5 bg-blue-50 text-blue-700 rounded-xl">
-              <Database size={20} />
+        {/* TAB 2: Security & Admins */}
+        {activeTab === 'security' && (
+          <div className="space-y-6">
+            {/* Current Session */}
+            <div className="bg-white rounded-2xl border border-gray-200/80 p-6 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100">
+                  <ShieldCheck size={22} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-graphite-950">Active Administrator Session</h3>
+                  <p className="text-xs text-graphite-500">
+                    Logged in as: <strong className="text-graphite-900">{currentUser?.email || 'Admin'}</strong>
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200 text-[11px] font-mono text-graphite-600 flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                <span>UID: {currentUser?.uid || 'Unknown'}</span>
+                <span className="text-emerald-700 font-bold">● Authenticated with Firebase Auth</span>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  onClick={handleSendPasswordReset}
+                  disabled={resetEmailSending}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-graphite-900 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors cursor-pointer"
+                >
+                  <Mail size={14} />
+                  <span>{resetEmailSending ? 'Sending Email...' : 'Send Password Reset Email'}</span>
+                </button>
+              </div>
             </div>
-            <div>
-              <h2 className="text-base font-bold text-graphite-900">Database & Content Initialization</h2>
-              <p className="text-xs text-graphite-500">Seed default project showcases, services, and credentials to Firestore</p>
+
+            {/* Authorized Admin Emails */}
+            <div className="bg-white rounded-2xl border border-gray-200/80 p-6 shadow-xs space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-graphite-950 uppercase">Authorized Admin Emails</h3>
+                  <p className="text-xs text-graphite-500">Only emails listed here or registered in Firebase Auth can manage portfolio content</p>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  value={newAdminEmail}
+                  onChange={(e) => setNewAdminEmail(e.target.value)}
+                  placeholder="admin@example.com"
+                  className="flex-1 px-3.5 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900"
+                />
+                <button
+                  type="button"
+                  onClick={addAdminEmail}
+                  className="px-4 py-2 text-xs font-bold text-white bg-graphite-950 rounded-xl hover:bg-graphite-800 transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <UserPlus size={14} />
+                  <span>Add Admin</span>
+                </button>
+              </div>
+
+              <div className="space-y-2 pt-2">
+                {(settings.authorizedAdmins || ['admin@zunayed.me']).map((email) => (
+                  <div
+                    key={email}
+                    className="flex items-center justify-between px-4 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs"
+                  >
+                    <span className="font-semibold text-graphite-900">{email}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeAdminEmail(email)}
+                      className="text-gray-400 hover:text-red-600 p-1 transition-colors"
+                      title="Remove"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
+        )}
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-gray-50 rounded-xl border border-gray-200/60">
-            <div>
-              <h4 className="text-sm font-bold text-graphite-900">Seed Initial Portfolio Data</h4>
-              <p className="text-xs text-graphite-600 mt-0.5">
-                Populates all 6 projects, 4 services, and 3 verified certificates into your live Firestore collections.
-              </p>
+        {/* TAB 3: Database & Backups */}
+        {activeTab === 'database' && (
+          <div className="bg-white rounded-2xl border border-gray-200/80 p-6 md:p-8 shadow-xs space-y-6">
+            <h3 className="text-sm font-bold text-graphite-950 uppercase tracking-wider">Cloud Firestore Operations</h3>
+
+            {/* Export JSON Backup */}
+            <div className="p-5 bg-gray-50 rounded-2xl border border-gray-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h4 className="text-sm font-bold text-graphite-950 flex items-center gap-2">
+                  <Download size={16} />
+                  <span>Export JSON Backup</span>
+                </h4>
+                <p className="text-xs text-graphite-500 mt-0.5">
+                  Download an offline `.json` snapshot of all projects, services, certificates, and site content.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleExportJSON}
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-graphite-900 bg-white border border-gray-200 hover:bg-gray-100 rounded-xl transition-all shadow-2xs shrink-0 cursor-pointer"
+              >
+                <Download size={14} />
+                <span>Export JSON</span>
+              </button>
             </div>
 
-            <button
-              onClick={handleSeed}
-              disabled={seeding}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold text-graphite-800 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all shadow-2xs shrink-0"
-            >
-              <RefreshCw size={14} className={seeding ? 'animate-spin' : ''} />
-              <span>{seeding ? 'Syncing to Firestore...' : seedSuccess ? 'Database Seeded!' : 'Seed Firestore Now'}</span>
-            </button>
+            {/* Seed / Reset Default Data */}
+            <div className="p-5 bg-amber-50/60 rounded-2xl border border-amber-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h4 className="text-sm font-bold text-amber-950 flex items-center gap-2">
+                  <RefreshCw size={16} />
+                  <span>Seed Default Portfolio Data</span>
+                </h4>
+                <p className="text-xs text-amber-800 mt-0.5">
+                  Populate your Firestore collections with default projects, services, and profile information.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setConfirmSeedOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-amber-950 bg-amber-100 hover:bg-amber-200 border border-amber-300 rounded-xl transition-all shrink-0 cursor-pointer"
+              >
+                <RefreshCw size={14} />
+                <span>Seed Firestore</span>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
+
+      {/* Seed Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={confirmSeedOpen}
+        title="Seed Default Data into Firestore?"
+        message="This will write default projects, services, certificates, and profile documents to your Cloud Firestore database."
+        confirmLabel="Seed Database"
+        isDestructive={false}
+        isLoading={seeding}
+        onConfirm={handleSeedData}
+        onCancel={() => setConfirmSeedOpen(false)}
+      />
     </AdminLayout>
   );
 }

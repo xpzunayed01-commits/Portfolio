@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Project, Service, Certificate } from '@/types';
+import { Project, Service, Certificate, SiteProfile, SiteSettings } from '@/types';
 import { fallbackProjects, fallbackServices, fallbackCertificates } from '@/data';
-import { defaultProfile, defaultSettings, SiteProfile, SiteSettings } from '@/lib/portfolioService';
+import { defaultProfile, defaultSettings } from '@/lib/portfolioService';
 
 export function usePortfolioData() {
   const [projects, setProjects] = useState<Project[]>(fallbackProjects);

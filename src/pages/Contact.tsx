@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Mail, MapPin, Globe } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { usePortfolioData } from '@/hooks/usePortfolioData';
 
 export function Contact() {
+  const { profile, settings } = usePortfolioData();
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    projectType: 'Website',
-    budget: '',
+    projectType: 'Website Design',
+    budget: '$1k - $5k',
     message: ''
   });
 
@@ -26,7 +28,7 @@ export function Contact() {
       });
       
       setStatus('success');
-      setFormData({ name: '', email: '', projectType: 'Website', budget: '', message: '' });
+      setFormData({ name: '', email: '', projectType: 'Website Design', budget: '$1k - $5k', message: '' });
     } catch (err) {
       console.error(err);
       setStatus('error');
@@ -42,28 +44,62 @@ export function Contact() {
           animate={{ opacity: 1, y: 0 }}
           className="max-w-xl"
         >
-          <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-graphite-900 mb-6 leading-tight">
+          <span className="text-xs font-bold uppercase tracking-widest text-graphite-500 mb-3 block">
+            Start a Conversation
+          </span>
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-graphite-950 mb-6 leading-tight">
             Have an idea?<br />Let's build it.
           </h1>
-          <p className="text-lg text-graphite-600 mb-12">
-            Whether you need a website, a digital product, a visual identity, or simply want to discuss an idea, I'd love to hear what you're working on.
+          <p className="text-lg text-graphite-600 mb-12 leading-relaxed">
+            Whether you need a bespoke website, UI/UX design sprint, brand identity overhaul, or want to discuss a new product concept, I'd love to hear what you are working on.
           </p>
 
           <div className="space-y-8">
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-widest text-graphite-500 mb-2">Email</h3>
-              <a href="mailto:hello@example.com" className="text-lg font-medium text-graphite-900 hover:opacity-70 transition-opacity">hello@example.com</a>
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-white border border-gray-200 rounded-2xl shadow-2xs text-graphite-900">
+                <Mail size={20} />
+              </div>
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-graphite-500 mb-1">Email Directly</h3>
+                <a 
+                  href={`mailto:${settings.contactEmail || profile.email || 'hello@zunayed.me'}`} 
+                  className="text-lg font-bold text-graphite-900 hover:text-graphite-600 transition-colors"
+                >
+                  {settings.contactEmail || profile.email || 'hello@zunayed.me'}
+                </a>
+              </div>
             </div>
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-widest text-graphite-500 mb-2">Location</h3>
-              <p className="text-lg font-medium text-graphite-900">Available Worldwide (Remote)</p>
+
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-white border border-gray-200 rounded-2xl shadow-2xs text-graphite-900">
+                <MapPin size={20} />
+              </div>
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-graphite-500 mb-1">Location</h3>
+                <p className="text-base font-semibold text-graphite-900">{profile.location || 'Dhaka, Bangladesh · Available Worldwide (Remote)'}</p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-widest text-graphite-500 mb-2">Socials</h3>
-              <div className="flex gap-6">
-                <a href="#" className="text-lg font-medium text-graphite-900 hover:opacity-70 transition-opacity">LinkedIn</a>
-                <a href="#" className="text-lg font-medium text-graphite-900 hover:opacity-70 transition-opacity">GitHub</a>
-                <a href="#" className="text-lg font-medium text-graphite-900 hover:opacity-70 transition-opacity">Twitter</a>
+
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-white border border-gray-200 rounded-2xl shadow-2xs text-graphite-900">
+                <Globe size={20} />
+              </div>
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-graphite-500 mb-2">Connect Across Networks</h3>
+                <div className="flex flex-wrap gap-4 text-sm font-bold text-graphite-900">
+                  {profile.linkedinUrl && (
+                    <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">LinkedIn</a>
+                  )}
+                  {profile.githubUrl && (
+                    <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">GitHub</a>
+                  )}
+                  {profile.dribbbleUrl && (
+                    <a href={profile.dribbbleUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">Dribbble</a>
+                  )}
+                  {profile.behanceUrl && (
+                    <a href={profile.behanceUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">Behance</a>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -74,110 +110,111 @@ export function Contact() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <div className="bg-white p-8 md:p-12 rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-200/40">
+          <div className="bg-white p-8 md:p-12 rounded-[2.5rem] border border-gray-200/80 shadow-xl shadow-gray-200/40">
             {status === 'success' ? (
-              <div className="text-center py-20">
-                <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500">
-                  <CheckCircle2 size={40} />
+              <div className="text-center py-16">
+                <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-emerald-600 border border-emerald-100">
+                  <CheckCircle2 size={36} />
                 </div>
-                <h3 className="text-3xl font-semibold text-graphite-900 mb-4">Message Sent</h3>
-                <p className="text-graphite-600 mb-8">Thank you for reaching out. I'll get back to you as soon as possible.</p>
+                <h3 className="text-2xl font-bold text-graphite-950 mb-2">Inquiry Received</h3>
+                <p className="text-sm text-graphite-600 mb-8 max-w-sm mx-auto leading-relaxed">
+                  Thank you for reaching out! Your message has been routed to my inbox. I typically respond within 24 hours.
+                </p>
                 <button 
                   onClick={() => setStatus('idle')}
-                  className="px-8 py-4 bg-graphite-900 text-white font-medium rounded-full hover:bg-graphite-800 transition-colors"
+                  className="px-6 py-3 bg-graphite-950 text-white text-xs font-bold rounded-xl hover:bg-graphite-800 transition-colors cursor-pointer"
                 >
-                  Send Another
+                  Send Another Inquiry
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-graphite-900 mb-2">Name</label>
+                    <label htmlFor="name" className="block text-xs font-bold uppercase text-graphite-700 mb-1.5">Your Name *</label>
                     <input 
                       type="text" 
                       id="name"
                       required
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      className="w-full px-5 py-4 rounded-xl bg-paper border border-gray-200 focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all"
-                      placeholder="John Doe"
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-xs focus:bg-white focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all font-medium"
+                      placeholder="e.g. Alex Morgan"
                     />
                   </div>
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-graphite-900 mb-2">Email</label>
+                    <label htmlFor="email" className="block text-xs font-bold uppercase text-graphite-700 mb-1.5">Email Address *</label>
                     <input 
                       type="email" 
                       id="email"
                       required
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="w-full px-5 py-4 rounded-xl bg-paper border border-gray-200 focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all"
-                      placeholder="john@example.com"
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-xs focus:bg-white focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all font-medium"
+                      placeholder="alex@company.com"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label htmlFor="projectType" className="block text-sm font-medium text-graphite-900 mb-2">Project Type</label>
+                    <label htmlFor="projectType" className="block text-xs font-bold uppercase text-graphite-700 mb-1.5">Project Scope</label>
                     <select 
                       id="projectType"
                       value={formData.projectType}
                       onChange={(e) => setFormData({...formData, projectType: e.target.value})}
-                      className="w-full px-5 py-4 rounded-xl bg-paper border border-gray-200 focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all appearance-none"
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-xs focus:bg-white focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all font-medium"
                     >
-                      <option>Website</option>
-                      <option>UI/UX Design</option>
-                      <option>Web Development</option>
-                      <option>Landing Page</option>
-                      <option>Logo / Branding</option>
-                      <option>Graphic Design</option>
-                      <option>App</option>
-                      <option>Other</option>
+                      <option value="Website Design">Website Design</option>
+                      <option value="UI/UX Design">UI/UX Design</option>
+                      <option value="Web Development">Web Development</option>
+                      <option value="Landing Page">Landing Page</option>
+                      <option value="Brand Identity">Brand Identity</option>
+                      <option value="Mobile App Design">Mobile App Design</option>
+                      <option value="Other">Other / Consultation</option>
                     </select>
                   </div>
                   <div>
-                    <label htmlFor="budget" className="block text-sm font-medium text-graphite-900 mb-2">Budget Range (Optional)</label>
+                    <label htmlFor="budget" className="block text-xs font-bold uppercase text-graphite-700 mb-1.5">Estimated Budget</label>
                     <select 
                       id="budget"
                       value={formData.budget}
                       onChange={(e) => setFormData({...formData, budget: e.target.value})}
-                      className="w-full px-5 py-4 rounded-xl bg-paper border border-gray-200 focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all appearance-none"
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-xs focus:bg-white focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all font-medium"
                     >
-                      <option value="">Select Range</option>
-                      <option value="<1k">Under $1k</option>
-                      <option value="1k-5k">$1k - $5k</option>
-                      <option value="5k-10k">$5k - $10k</option>
-                      <option value="10k+">$10k+</option>
+                      <option value="< $1k">Under $1,000</option>
+                      <option value="$1k - $3k">$1,000 – $3,000</option>
+                      <option value="$3k - $5k">$3,000 – $5,000</option>
+                      <option value="$5k - $10k">$5,000 – $10,000</option>
+                      <option value="$10k+">$10,000+</option>
                     </select>
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-graphite-900 mb-2">Message</label>
+                  <label htmlFor="message" className="block text-xs font-bold uppercase text-graphite-700 mb-1.5">Project Details *</label>
                   <textarea 
                     id="message"
                     required
                     rows={4}
                     value={formData.message}
                     onChange={(e) => setFormData({...formData, message: e.target.value})}
-                    className="w-full px-5 py-4 rounded-xl bg-paper border border-gray-200 focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all resize-none"
-                    placeholder="Tell me about your project..."
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-xs focus:bg-white focus:outline-none focus:border-graphite-900 focus:ring-1 focus:ring-graphite-900 transition-all resize-none font-medium leading-relaxed"
+                    placeholder="Tell me about your goals, timeline, and key requirements..."
                   ></textarea>
                 </div>
 
                 {status === 'error' && (
-                  <p className="text-red-500 text-sm">Failed to send message. Please ensure Supabase is configured or try again.</p>
+                  <p className="text-red-500 text-xs font-medium">Failed to send message. Please try again or email directly.</p>
                 )}
 
                 <button 
                   type="submit" 
                   disabled={status === 'loading'}
-                  className="w-full py-4 bg-graphite-900 text-white font-medium rounded-xl hover:bg-graphite-800 transition-all hover:-translate-y-1 active:translate-y-0 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-graphite-950 text-white text-xs font-bold rounded-xl hover:bg-graphite-800 transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
                 >
-                  {status === 'loading' ? 'Sending...' : 'Send Message'}
-                  {status !== 'loading' && <ArrowRight size={18} />}
+                  {status === 'loading' ? 'Sending Inquiry...' : 'Submit Inquiry'}
+                  {status !== 'loading' && <ArrowRight size={16} />}
                 </button>
               </form>
             )}

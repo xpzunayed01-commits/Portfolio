@@ -1,6 +1,42 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script>
+      // Safeguard against third-party libraries/polyfills attempting to assign to window.fetch
+      (function() {
+        try {
+          var originalFetch = window.fetch;
+          if (originalFetch) {
+            var activeFetch = originalFetch;
+            try {
+              Object.defineProperty(window, 'fetch', {
+                configurable: true,
+                enumerable: true,
+                get: function() {
+                  return activeFetch;
+                },
+                set: function(fn) {
+                  activeFetch = fn;
+                }
+              });
+            } catch (e) {
+              try {
+                Object.defineProperty(Window.prototype, 'fetch', {
+                  configurable: true,
+                  enumerable: true,
+                  get: function() {
+                    return activeFetch;
+                  },
+                  set: function(fn) {
+                    activeFetch = fn;
+                  }
+                });
+              } catch (err) {}
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Zunayed's Portfolio</title>
@@ -19,4 +55,3 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
