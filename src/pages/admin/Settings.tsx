@@ -14,9 +14,13 @@ import {
   UserPlus,
   Trash2,
   Lock,
-  Mail
+  Mail,
+  Palette,
+  Share2,
+  Sliders,
+  FileText
 } from 'lucide-react';
-import { doc, onSnapshot, getDoc } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
 import { SiteSettings } from '@/types';
@@ -32,7 +36,7 @@ import { useToast } from '@/context/ToastContext';
 export function AdminSettings() {
   const { toastSuccess, toastError, toastInfo } = useToast();
   const [settings, setSettings] = useState<SiteSettings>(fallbackSettings);
-  const [activeTab, setActiveTab] = useState<'general' | 'security' | 'database'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'branding' | 'social' | 'seo' | 'security' | 'database'>('general');
   const [saving, setSaving] = useState(false);
   const [seeding, setSeeding] = useState(false);
 
@@ -64,7 +68,7 @@ export function AdminSettings() {
     try {
       setSaving(true);
       await saveSiteSettings(settings);
-      toastSuccess('Site settings saved');
+      toastSuccess('Website settings saved successfully');
     } catch (err: any) {
       console.error(err);
       toastError(err.message || 'Error saving settings');
@@ -133,7 +137,7 @@ export function AdminSettings() {
         authorizedAdmins: [...(prev.authorizedAdmins || []), email]
       }));
       setNewAdminEmail('');
-      toastSuccess(`Added ${email} to authorized admin list (Click Save Changes to persist)`);
+      toastSuccess(`Added ${email} to authorized admin list (Click Save Settings to persist)`);
     } else {
       toastInfo('Email already in list');
     }
@@ -144,13 +148,13 @@ export function AdminSettings() {
       ...prev,
       authorizedAdmins: (prev.authorizedAdmins || []).filter(e => e !== emailToRemove)
     }));
-    toastInfo(`Removed ${emailToRemove} (Click Save Changes to persist)`);
+    toastInfo(`Removed ${emailToRemove} (Click Save Settings to persist)`);
   };
 
   return (
     <AdminLayout
-      title="System Settings"
-      subtitle="Configure global SEO meta tags, brand details, admin authorization, and database backups."
+      title="Settings"
+      subtitle="Configure website preferences, branding, social links, SEO metadata, and maintenance."
       actionButton={
         <button
           onClick={() => handleSave()}
@@ -170,7 +174,31 @@ export function AdminSettings() {
             activeTab === 'general' ? 'bg-graphite-950 text-white shadow-xs' : 'bg-white text-graphite-600 hover:bg-gray-100'
           }`}
         >
-          1. General & SEO
+          General
+        </button>
+        <button
+          onClick={() => setActiveTab('branding')}
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+            activeTab === 'branding' ? 'bg-graphite-950 text-white shadow-xs' : 'bg-white text-graphite-600 hover:bg-gray-100'
+          }`}
+        >
+          Branding
+        </button>
+        <button
+          onClick={() => setActiveTab('social')}
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+            activeTab === 'social' ? 'bg-graphite-950 text-white shadow-xs' : 'bg-white text-graphite-600 hover:bg-gray-100'
+          }`}
+        >
+          Social & Contact
+        </button>
+        <button
+          onClick={() => setActiveTab('seo')}
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+            activeTab === 'seo' ? 'bg-graphite-950 text-white shadow-xs' : 'bg-white text-graphite-600 hover:bg-gray-100'
+          }`}
+        >
+          SEO & Footer
         </button>
         <button
           onClick={() => setActiveTab('security')}
@@ -178,7 +206,7 @@ export function AdminSettings() {
             activeTab === 'security' ? 'bg-graphite-950 text-white shadow-xs' : 'bg-white text-graphite-600 hover:bg-gray-100'
           }`}
         >
-          2. Security & Admins
+          Security & Admins
         </button>
         <button
           onClick={() => setActiveTab('database')}
@@ -186,39 +214,41 @@ export function AdminSettings() {
             activeTab === 'database' ? 'bg-graphite-950 text-white shadow-xs' : 'bg-white text-graphite-600 hover:bg-gray-100'
           }`}
         >
-          3. Database & Backups
+          Database & Backups
         </button>
       </div>
 
       <div className="space-y-6">
-        {/* TAB 1: General & SEO */}
+        {/* TAB 1: General */}
         {activeTab === 'general' && (
           <div className="bg-white rounded-2xl border border-gray-200/80 p-6 md:p-8 shadow-xs space-y-6">
-            <h3 className="text-sm font-bold text-graphite-950 uppercase tracking-wider">SEO & Site Identity</h3>
+            <h3 className="text-sm font-bold text-graphite-950 uppercase tracking-wider">General Information</h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
-                  Site Name / Title Tag *
+                  Site Name *
                 </label>
                 <input
                   type="text"
                   required
                   value={settings.siteName}
                   onChange={(e) => setSettings({ ...settings, siteName: e.target.value })}
+                  placeholder="Zunayed's Portfolio"
                   className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900 font-bold"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
-                  Primary Contact Email
+                  Site Title Tag *
                 </label>
                 <input
-                  type="email"
-                  value={settings.contactEmail}
-                  onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })}
-                  placeholder="hello@zunayed.me"
+                  type="text"
+                  required
+                  value={settings.siteTitle || ''}
+                  onChange={(e) => setSettings({ ...settings, siteTitle: e.target.value })}
+                  placeholder="Zunayed Al Hasan · Web & UI/UX Designer, Creative Developer"
                   className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900"
                 />
               </div>
@@ -226,46 +256,328 @@ export function AdminSettings() {
 
             <div>
               <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
-                Meta Description (Search Engines & Social Sharing)
+                Site Description
               </label>
               <textarea
                 rows={3}
-                value={settings.metaDescription}
-                onChange={(e) => setSettings({ ...settings, metaDescription: e.target.value })}
-                placeholder="Personal portfolio of Zunayed Al Hasan - UI/UX Designer & Creative Developer..."
+                value={settings.siteDescription || ''}
+                onChange={(e) => setSettings({ ...settings, siteDescription: e.target.value })}
+                placeholder="Portfolio of Zunayed Al Hasan — Web Designer, UI/UX Designer, and Creative Developer crafting modern, high-impact digital experiences."
                 className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900 leading-relaxed"
               />
             </div>
 
             <div>
               <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
-                Footer Copyright Text
+                Default Language
               </label>
               <input
                 type="text"
-                value={settings.footerText}
-                onChange={(e) => setSettings({ ...settings, footerText: e.target.value })}
-                placeholder="© 2025 Zunayed Al Hasan. All rights reserved."
-                className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900"
+                value={settings.defaultLanguage || 'English (US)'}
+                onChange={(e) => setSettings({ ...settings, defaultLanguage: e.target.value })}
+                className="w-full max-w-xs px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900"
               />
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: Branding */}
+        {activeTab === 'branding' && (
+          <div className="bg-white rounded-2xl border border-gray-200/80 p-6 md:p-8 shadow-xs space-y-6">
+            <h3 className="text-sm font-bold text-graphite-950 uppercase tracking-wider">Branding & Aesthetics</h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  Logo Image URL
+                </label>
+                <input
+                  type="url"
+                  value={settings.logoImageUrl || ''}
+                  onChange={(e) => setSettings({ ...settings, logoImageUrl: e.target.value })}
+                  placeholder="https://i.postimg.cc/..."
+                  className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900 font-mono"
+                />
+                {settings.logoImageUrl && (
+                  <div className="mt-2 w-12 h-12 p-2 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center">
+                    <img src={settings.logoImageUrl} alt="Logo preview" className="max-w-full max-h-full object-contain" referrerPolicy="no-referrer" />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  Favicon URL
+                </label>
+                <input
+                  type="url"
+                  value={settings.faviconUrl || ''}
+                  onChange={(e) => setSettings({ ...settings, faviconUrl: e.target.value })}
+                  placeholder="https://..."
+                  className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  Primary Theme Color
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={settings.primaryColor || '#121316'}
+                    onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
+                    className="w-10 h-10 rounded-xl border border-gray-200 cursor-pointer p-1"
+                  />
+                  <input
+                    type="text"
+                    value={settings.primaryColor || '#121316'}
+                    onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
+                    className="flex-1 px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl font-mono"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  Background Color
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={settings.backgroundColor || '#FAF9F6'}
+                    onChange={(e) => setSettings({ ...settings, backgroundColor: e.target.value })}
+                    className="w-10 h-10 rounded-xl border border-gray-200 cursor-pointer p-1"
+                  />
+                  <input
+                    type="text"
+                    value={settings.backgroundColor || '#FAF9F6'}
+                    onChange={(e) => setSettings({ ...settings, backgroundColor: e.target.value })}
+                    className="flex-1 px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl font-mono"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: Social & Contact */}
+        {activeTab === 'social' && (
+          <div className="bg-white rounded-2xl border border-gray-200/80 p-6 md:p-8 shadow-xs space-y-6">
+            <h3 className="text-sm font-bold text-graphite-950 uppercase tracking-wider">Social Handles & Contact Settings</h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  GitHub Profile URL
+                </label>
+                <input
+                  type="url"
+                  value={settings.githubUrl || ''}
+                  onChange={(e) => setSettings({ ...settings, githubUrl: e.target.value })}
+                  placeholder="https://github.com/username"
+                  className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  LinkedIn Profile URL
+                </label>
+                <input
+                  type="url"
+                  value={settings.linkedinUrl || ''}
+                  onChange={(e) => setSettings({ ...settings, linkedinUrl: e.target.value })}
+                  placeholder="https://linkedin.com/in/username"
+                  className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  Behance URL
+                </label>
+                <input
+                  type="url"
+                  value={settings.behanceUrl || ''}
+                  onChange={(e) => setSettings({ ...settings, behanceUrl: e.target.value })}
+                  placeholder="https://behance.net/username"
+                  className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  Dribbble URL
+                </label>
+                <input
+                  type="url"
+                  value={settings.dribbbleUrl || ''}
+                  onChange={(e) => setSettings({ ...settings, dribbbleUrl: e.target.value })}
+                  placeholder="https://dribbble.com/username"
+                  className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  Instagram URL
+                </label>
+                <input
+                  type="url"
+                  value={settings.instagramUrl || ''}
+                  onChange={(e) => setSettings({ ...settings, instagramUrl: e.target.value })}
+                  placeholder="https://instagram.com/username"
+                  className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  YouTube / Video URL
+                </label>
+                <input
+                  type="url"
+                  value={settings.youtubeUrl || ''}
+                  onChange={(e) => setSettings({ ...settings, youtubeUrl: e.target.value })}
+                  placeholder="https://youtube.com/@username"
+                  className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900 font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  Primary Contact Email
+                </label>
+                <input
+                  type="email"
+                  value={settings.contactEmail || ''}
+                  onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })}
+                  placeholder="hello@zunayed.me"
+                  className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  Contact CTA Button Text
+                </label>
+                <input
+                  type="text"
+                  value={settings.contactCtaText || "Let's Work Together"}
+                  onChange={(e) => setSettings({ ...settings, contactCtaText: e.target.value })}
+                  className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: SEO & Footer */}
+        {activeTab === 'seo' && (
+          <div className="bg-white rounded-2xl border border-gray-200/80 p-6 md:p-8 shadow-xs space-y-6">
+            <h3 className="text-sm font-bold text-graphite-950 uppercase tracking-wider">SEO & Footer Configuration</h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  Meta Title
+                </label>
+                <input
+                  type="text"
+                  value={settings.metaTitle || ''}
+                  onChange={(e) => setSettings({ ...settings, metaTitle: e.target.value })}
+                  placeholder="Zunayed Al Hasan · Web Designer · UI/UX Designer · Creative Developer"
+                  className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900 font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  OG Image URL (Social Previews)
+                </label>
+                <input
+                  type="url"
+                  value={settings.ogImageUrl || ''}
+                  onChange={(e) => setSettings({ ...settings, ogImageUrl: e.target.value })}
+                  placeholder="https://..."
+                  className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900 font-mono"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                Meta Description
+              </label>
+              <textarea
+                rows={3}
+                value={settings.metaDescription || ''}
+                onChange={(e) => setSettings({ ...settings, metaDescription: e.target.value })}
+                placeholder="Turning ideas into digital experiences people remember..."
+                className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900 leading-relaxed"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                Keywords (Comma Separated)
+              </label>
+              <input
+                type="text"
+                value={settings.keywords || ''}
+                onChange={(e) => setSettings({ ...settings, keywords: e.target.value })}
+                placeholder="Web Designer, UI/UX Designer, Creative Developer, React, Frontend, Portfolio"
+                className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900 font-mono"
+              />
+            </div>
+
+            <div className="pt-4 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  Footer Copyright Line
+                </label>
+                <input
+                  type="text"
+                  value={settings.footerText || ''}
+                  onChange={(e) => setSettings({ ...settings, footerText: e.target.value })}
+                  placeholder="© 2025 Zunayed Al Hasan. All rights reserved."
+                  className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-graphite-700 uppercase mb-1">
+                  Footer Subtext
+                </label>
+                <input
+                  type="text"
+                  value={settings.copyrightText || ''}
+                  onChange={(e) => setSettings({ ...settings, copyrightText: e.target.value })}
+                  placeholder="Designed & Developed with precision by Zunayed Al Hasan."
+                  className="w-full px-3.5 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-graphite-900"
+                />
+              </div>
             </div>
 
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200">
               <div>
-                <p className="text-xs font-bold text-graphite-900">Enable Contact Inquiries Form</p>
-                <p className="text-[11px] text-graphite-500">Allow prospective clients to submit messages on /contact</p>
+                <p className="text-xs font-bold text-graphite-900">Maintenance Mode</p>
+                <p className="text-[11px] text-graphite-500">Temporarily show maintenance notice on the public website</p>
               </div>
               <input
                 type="checkbox"
-                checked={settings.allowMessages !== false}
-                onChange={(e) => setSettings({ ...settings, allowMessages: e.target.checked })}
+                checked={Boolean(settings.maintenanceMode)}
+                onChange={(e) => setSettings({ ...settings, maintenanceMode: e.target.checked })}
                 className="w-5 h-5 text-graphite-950 rounded border-gray-300 focus:ring-graphite-950 cursor-pointer"
               />
             </div>
           </div>
         )}
 
-        {/* TAB 2: Security & Admins */}
+        {/* TAB 5: Security & Admins */}
         {activeTab === 'security' && (
           <div className="space-y-6">
             {/* Current Session */}
@@ -327,7 +639,7 @@ export function AdminSettings() {
               </div>
 
               <div className="space-y-2 pt-2">
-                {(settings.authorizedAdmins || ['admin@zunayed.me']).map((email) => (
+                {(settings.authorizedAdmins || ['admin@zunayed.me', 'xpzunayed01@gmail.com']).map((email) => (
                   <div
                     key={email}
                     className="flex items-center justify-between px-4 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs"
@@ -336,7 +648,7 @@ export function AdminSettings() {
                     <button
                       type="button"
                       onClick={() => removeAdminEmail(email)}
-                      className="text-gray-400 hover:text-red-600 p-1 transition-colors"
+                      className="text-gray-400 hover:text-red-600 p-1 transition-colors cursor-pointer"
                       title="Remove"
                     >
                       <Trash2 size={14} />
@@ -348,7 +660,7 @@ export function AdminSettings() {
           </div>
         )}
 
-        {/* TAB 3: Database & Backups */}
+        {/* TAB 6: Database & Backups */}
         {activeTab === 'database' && (
           <div className="bg-white rounded-2xl border border-gray-200/80 p-6 md:p-8 shadow-xs space-y-6">
             <h3 className="text-sm font-bold text-graphite-950 uppercase tracking-wider">Cloud Firestore Operations</h3>

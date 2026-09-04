@@ -5,13 +5,13 @@ import { onAuthStateChanged, signOut, User as FirebaseUser } from 'firebase/auth
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { 
   LayoutDashboard, 
-  LogOut, 
-  Settings, 
+  FolderKanban,
   Briefcase, 
-  FileText, 
-  Layers, 
+  Award,
   Mail, 
-  User, 
+  UserRound, 
+  Settings, 
+  LogOut, 
   ExternalLink,
   Menu,
   X,
@@ -115,7 +115,7 @@ export function AdminLayout({ children, title, subtitle, actionButton }: AdminLa
           <div className="flex gap-3 justify-center">
             <button
               onClick={handleLogout}
-              className="px-5 py-2.5 bg-graphite-950 text-white text-xs font-bold rounded-xl hover:bg-graphite-800 transition-colors"
+              className="px-5 py-2.5 bg-graphite-950 text-white text-xs font-bold rounded-xl hover:bg-graphite-800 transition-colors cursor-pointer"
             >
               Sign Out & Switch Account
             </button>
@@ -133,18 +133,18 @@ export function AdminLayout({ children, title, subtitle, actionButton }: AdminLa
 
   const navItems = [
     { name: 'Dashboard', icon: <LayoutDashboard size={18} />, path: '/Root' },
-    { name: 'Projects', icon: <Briefcase size={18} />, path: '/Root/projects' },
-    { name: 'Services', icon: <Layers size={18} />, path: '/Root/services' },
-    { name: 'Certificates', icon: <FileText size={18} />, path: '/Root/certificates' },
+    { name: 'Projects', icon: <FolderKanban size={18} />, path: '/Root/projects' },
+    { name: 'Services', icon: <Briefcase size={18} />, path: '/Root/services' },
+    { name: 'Certificates', icon: <Award size={18} />, path: '/Root/certificates' },
     { name: 'Messages', icon: <Mail size={18} />, path: '/Root/messages', badge: unreadCount > 0 ? unreadCount : undefined },
-    { name: 'Profile & Bio', icon: <User size={18} />, path: '/Root/profile' },
+    { name: 'Profile & Bio', icon: <UserRound size={18} />, path: '/Root/profile' },
     { name: 'Settings', icon: <Settings size={18} />, path: '/Root/settings' },
   ];
 
   return (
     <div className="min-h-screen bg-[#FAF9F6] flex flex-col text-graphite-900 selection:bg-graphite-900 selection:text-white">
-      {/* Top Header */}
-      <header className="h-16 bg-white/95 backdrop-blur-md border-b border-gray-200/80 sticky top-0 z-40 px-4 sm:px-8 flex items-center justify-between shadow-2xs">
+      {/* Top Admin Header */}
+      <header className="h-16 bg-white border-b border-gray-200/80 sticky top-0 z-40 px-4 sm:px-8 flex items-center justify-between shadow-2xs">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -263,7 +263,7 @@ export function AdminLayout({ children, title, subtitle, actionButton }: AdminLa
             <div className="relative w-72 bg-white h-full flex flex-col p-6 shadow-2xl z-10">
               <div className="flex items-center justify-between pb-4 border-b border-gray-100">
                 <span className="font-bold text-graphite-900 text-sm uppercase tracking-wider">Admin Menu</span>
-                <button onClick={() => setMobileMenuOpen(false)} className="p-1 text-gray-500 hover:text-gray-900">
+                <button onClick={() => setMobileMenuOpen(false)} className="p-1 text-gray-500 hover:text-gray-900 cursor-pointer">
                   <X size={20} />
                 </button>
               </div>
@@ -306,7 +306,7 @@ export function AdminLayout({ children, title, subtitle, actionButton }: AdminLa
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-3.5 py-2.5 text-xs font-bold rounded-xl text-red-600 hover:bg-red-50"
+                  className="w-full flex items-center gap-3 px-3.5 py-2.5 text-xs font-bold rounded-xl text-red-600 hover:bg-red-50 cursor-pointer"
                 >
                   <LogOut size={16} />
                   <span>Log Out</span>
@@ -317,7 +317,7 @@ export function AdminLayout({ children, title, subtitle, actionButton }: AdminLa
         )}
 
         {/* Main Content Workspace */}
-        <main className="flex-1 lg:ml-64 p-4 sm:p-6 md:p-8 lg:p-10 max-w-7xl w-full">
+        <main className="flex-1 lg:ml-64 p-4 sm:p-6 md:p-8 lg:p-10 max-w-7xl w-full min-h-[calc(100vh-4rem)]">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div>
               <h1 className="text-2xl md:text-3xl font-black tracking-tight text-graphite-950">
